@@ -47,6 +47,7 @@ nextcloud-mcp:
 - `fulltextsearch_index --reset` wipes and rebuilds the full OpenSearch index. Takes time.
 - `dav_get` / `dav_put` use base64 encoding for binary content.
 - WebDAV paths are relative to the user's file root (no leading slash needed).
+- `share_create`, `share_list`, `share_delete` authenticate as admin regardless of calling agent. This is intentional — admin auth is required for cross-user share management via OCS.
 
 <!-- SECURITY[control]: This server has no internal authentication layer. Tool access control
 is enforced entirely by scoped-mcp grants (see manifest above). Agents only see the tool subset
