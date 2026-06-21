@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 from typing import Annotated, Literal
 
 import structlog
@@ -55,6 +56,15 @@ if _otel_endpoint:
         log.warning("otlp_import_failed", hint="pip install 'nextcloud-mcp[telemetry]'")
 
 mcp = FastMCP("nextcloud-mcp")
+
+_ID_RE = re.compile(r"^[a-zA-Z0-9_.@-]+$")
+_SHARE_ID_RE = re.compile(r"^[0-9]+$")
+
+
+def _validate_id(value: str, name: str, pattern: re.Pattern = _ID_RE) -> str:
+    if not pattern.match(value):
+        raise ValueError(f"Invalid {name!r}: must match {pattern.pattern}")
+    return value
 
 
 # ===========================================================================
@@ -248,6 +258,7 @@ async def user_create(
 @mcp.tool()
 async def user_disable(username: str, disable: bool = True) -> str:
     """Enable or disable a Nextcloud user. disable=True to disable, False to re-enable."""
+    _validate_id(username, "username")
     action = "disable" if disable else "enable"
     result = await ocs_post(f"/ocs/v1.php/cloud/users/{username}/{action}")
     return result.get("meta", {}).get("message", "ok")
@@ -262,6 +273,8 @@ async def group_create(group_id: str) -> dict:
 @mcp.tool()
 async def group_add_member(group_id: str, username: str) -> str:
     """Add a user to an existing Nextcloud group."""
+    _validate_id(group_id, "group_id")
+    _validate_id(username, "username")
     result = await ocs_post(
         f"/ocs/v1.php/cloud/groups/{group_id}/users",
         data={"userid": username},
@@ -368,6 +381,7 @@ async def share_list(path: str = "", reshares: bool = False) -> dict:
 @mcp.tool()
 async def share_delete(share_id: str) -> str:
     """Delete a share by its ID."""
+    _validate_id(share_id, "share_id", _SHARE_ID_RE)
     await ocs_delete(f"/ocs/v2.php/apps/files_sharing/api/v1/shares/{share_id}")
     return f"Deleted share {share_id}"
 
