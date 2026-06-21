@@ -8,7 +8,9 @@ import httpx
 import pytest
 import respx
 
-DAV_BASE = "https://nextcloud.helmforge.me/remote.php/dav/files/alice"
+from tests.conftest import NEXTCLOUD_TEST_URL
+
+DAV_BASE = f"{NEXTCLOUD_TEST_URL}/remote.php/dav/files/alice"
 
 PROPFIND_XML = """<?xml version="1.0"?>
 <d:multistatus xmlns:d="DAV:">
@@ -18,14 +20,7 @@ PROPFIND_XML = """<?xml version="1.0"?>
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_dav_list(monkeypatch):
-    monkeypatch.setenv("NEXTCLOUD_URL", "https://nextcloud.helmforge.me")
-    monkeypatch.setenv("NEXTCLOUD_ADMIN_PASSWORD", "secret")
-    # Reset cached settings
-    import nextcloud_mcp.config as cfg_mod
-
-    cfg_mod._settings = None
-
+async def test_dav_list():
     respx.route(method="PROPFIND", url=f"{DAV_BASE}/").mock(
         return_value=httpx.Response(207, text=PROPFIND_XML)
     )
@@ -37,13 +32,7 @@ async def test_dav_list(monkeypatch):
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_dav_get(monkeypatch):
-    monkeypatch.setenv("NEXTCLOUD_URL", "https://nextcloud.helmforge.me")
-    monkeypatch.setenv("NEXTCLOUD_ADMIN_PASSWORD", "secret")
-    import nextcloud_mcp.config as cfg_mod
-
-    cfg_mod._settings = None
-
+async def test_dav_get():
     content = b"Hello, Nextcloud!"
     respx.get(f"{DAV_BASE}/hello.txt").mock(return_value=httpx.Response(200, content=content))
     from nextcloud_mcp.server import dav_get
@@ -54,13 +43,7 @@ async def test_dav_get(monkeypatch):
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_dav_put(monkeypatch):
-    monkeypatch.setenv("NEXTCLOUD_URL", "https://nextcloud.helmforge.me")
-    monkeypatch.setenv("NEXTCLOUD_ADMIN_PASSWORD", "secret")
-    import nextcloud_mcp.config as cfg_mod
-
-    cfg_mod._settings = None
-
+async def test_dav_put():
     respx.put(f"{DAV_BASE}/upload.txt").mock(return_value=httpx.Response(201))
     from nextcloud_mcp.server import dav_put
 
@@ -76,13 +59,7 @@ async def test_dav_put(monkeypatch):
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_dav_delete(monkeypatch):
-    monkeypatch.setenv("NEXTCLOUD_URL", "https://nextcloud.helmforge.me")
-    monkeypatch.setenv("NEXTCLOUD_ADMIN_PASSWORD", "secret")
-    import nextcloud_mcp.config as cfg_mod
-
-    cfg_mod._settings = None
-
+async def test_dav_delete():
     respx.delete(f"{DAV_BASE}/old.txt").mock(return_value=httpx.Response(204))
     from nextcloud_mcp.server import dav_delete
 

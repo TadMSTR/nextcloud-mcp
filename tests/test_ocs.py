@@ -8,6 +8,8 @@ import httpx
 import pytest
 import respx
 
+from tests.conftest import NEXTCLOUD_TEST_URL
+
 OCS_OK = {
     "ocs": {
         "meta": {"status": "ok", "statuscode": 100, "message": "OK"},
@@ -29,7 +31,7 @@ def mock_get_creds():
 @respx.mock
 @pytest.mark.asyncio
 async def test_ocs_get_users(mock_get_creds):
-    respx.get("https://nextcloud.helmforge.me/ocs/v1.php/cloud/users").mock(
+    respx.get(f"{NEXTCLOUD_TEST_URL}/ocs/v1.php/cloud/users").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -50,7 +52,7 @@ async def test_ocs_get_users(mock_get_creds):
 @respx.mock
 @pytest.mark.asyncio
 async def test_ocs_post_user_create(mock_get_creds):
-    respx.post("https://nextcloud.helmforge.me/ocs/v1.php/cloud/users").mock(
+    respx.post(f"{NEXTCLOUD_TEST_URL}/ocs/v1.php/cloud/users").mock(
         return_value=httpx.Response(200, json=OCS_OK)
     )
     from nextcloud_mcp.server import user_create
@@ -62,13 +64,13 @@ async def test_ocs_post_user_create(mock_get_creds):
 @respx.mock
 @pytest.mark.asyncio
 async def test_share_create_public_link(mock_get_creds):
-    respx.post("https://nextcloud.helmforge.me/ocs/v2.php/apps/files_sharing/api/v1/shares").mock(
+    respx.post(f"{NEXTCLOUD_TEST_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares").mock(
         return_value=httpx.Response(
             200,
             json={
                 "ocs": {
                     "meta": {"status": "ok", "statuscode": 200, "message": "OK"},
-                    "data": {"id": "42", "url": "https://nextcloud.helmforge.me/s/abc123"},
+                    "data": {"id": "42", "url": f"{NEXTCLOUD_TEST_URL}/s/abc123"},
                 }
             },
         )
@@ -84,7 +86,7 @@ async def test_share_create_public_link(mock_get_creds):
 @pytest.mark.asyncio
 async def test_share_delete(mock_get_creds):
     respx.delete(
-        "https://nextcloud.helmforge.me/ocs/v2.php/apps/files_sharing/api/v1/shares/42"
+        f"{NEXTCLOUD_TEST_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares/42"
     ).mock(return_value=httpx.Response(200, json=OCS_OK))
     from nextcloud_mcp.server import share_delete
 
