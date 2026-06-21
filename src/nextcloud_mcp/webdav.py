@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import re
+import urllib.parse
+
 import httpx
 import structlog
 
@@ -9,10 +12,24 @@ from .config import get_settings
 
 log = structlog.get_logger()
 
+_DAV_USER_RE = re.compile(r"^[a-zA-Z0-9_.@-]+$")
+
+
+def _validate_dav_path(path: str) -> str:
+    """Reject traversal sequences — raw (../) and percent-encoded (%2e, %2f)."""
+    if "%2e" in path.lower() or "%2f" in path.lower():
+        raise ValueError("Invalid path: percent-encoded traversal not allowed")
+    decoded = urllib.parse.unquote(path)
+    if ".." in decoded.replace("\\", "/").split("/"):
+        raise ValueError("Invalid path: traversal sequences not allowed")
+    return path.strip("/")
+
 
 def _dav_url(username: str, path: str = "") -> str:
+    if not _DAV_USER_RE.match(username):
+        raise ValueError(f"Invalid username {username!r}: must match {_DAV_USER_RE.pattern}")
+    clean = _validate_dav_path(path)
     base = get_settings().url.rstrip("/")
-    clean = path.strip("/")
     return f"{base}/remote.php/dav/files/{username}/{clean}"
 
 

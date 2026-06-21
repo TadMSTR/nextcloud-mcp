@@ -27,10 +27,14 @@ def _sanitize_args(args: tuple[str, ...]) -> list[str]:
     return result
 
 
-async def run_occ(*args: str, timeout: int = 120) -> str:
+async def run_occ(*args: str, timeout: int = 120, env: dict[str, str] | None = None) -> str:
     """Run an occ command and return stdout. Raises RuntimeError on non-zero exit."""
     cfg = get_settings()
-    cmd = ["docker", "exec", cfg.container, "occ", "--no-ansi", *args]
+    cmd = ["docker", "exec"]
+    if env:
+        for k, v in env.items():
+            cmd.extend(["-e", f"{k}={v}"])
+    cmd += [cfg.container, "occ", "--no-ansi", *args]
     log.info("occ_exec", args=_sanitize_args(args))
 
     proc = await asyncio.create_subprocess_exec(

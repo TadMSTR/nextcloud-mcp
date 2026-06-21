@@ -6,6 +6,7 @@ import base64
 import json
 import os
 import re
+import secrets
 from typing import Annotated, Literal
 
 import structlog
@@ -289,14 +290,12 @@ async def app_password_create(username: str, label: str = "agent") -> str:
     Returns the password to the caller — never stored or logged by this server.
     Store it securely (e.g. Vault) immediately after receiving it.
     """
-    out = await run_occ("user:add-app-password", username, "--password-from-env")
-    # occ outputs the password on its own line; extract it
-    for line in out.splitlines():
-        stripped = line.strip()
-        if stripped and not stripped.startswith("Generated"):
-            return stripped
-    # Fallback: return the full output (password is in it)
-    return out
+    app_password = secrets.token_urlsafe(24)
+    await run_occ(
+        "user:add-app-password", username, "--password-from-env",
+        env={"OC_PASS": app_password},
+    )
+    return app_password
 
 
 # ===========================================================================
@@ -345,6 +344,10 @@ async def dav_delete(username: str, password: str, path: str) -> str:
     return f"Deleted {path!r}"
 
 
+# SECURITY[control]: share_* tools use admin credentials for all OCS calls. This is
+# intentional — admin auth is required to create/manage shares across user spaces. Tool
+# access is gated by scoped-mcp grants; only agents with explicit share_* grants can call
+# these tools. Audit: 2026-06-21/nextcloud-mcp-2026-06.
 @mcp.tool()
 async def share_create(
     path: str,
