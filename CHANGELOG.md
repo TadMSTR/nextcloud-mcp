@@ -4,6 +4,14 @@ All notable changes will be documented here.
 
 ## [Unreleased]
 
+### Security
+- Redact `--value` argument from occ exec logs to prevent secret leakage (F-02)
+- Validate WebDAV path and username in `_dav_url` to block traversal sequences (F-01)
+- Fix `app_password_create` to generate password via `secrets.token_urlsafe` and inject via
+  `docker exec -e OC_PASS` — eliminates broken `--password-from-env` pattern (F-04)
+- Fix Vault KV v2 credential path: insert `/data/` and read `data.data` response (F-03)
+- Remove forge-specific default URL from `config.py` (F-05)
+
 ### Added
 - Initial FastMCP server scaffold
 - 17 occ admin tools: status, maintenance mode, app management, config, file scan/cleanup,
