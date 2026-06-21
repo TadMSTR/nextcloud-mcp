@@ -13,7 +13,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    url: str = "https://nextcloud.helmforge.me"
+    url: str = ""  # Required — set NEXTCLOUD_URL
     container: str = "nextcloud"
     occ_user: str = "abc"
     admin_user: str = "admin"
@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # Optional Vault extension
     vault_addr: str = ""
     vault_token: str = ""
-    vault_admin_path: str = "secret/nextcloud/admin"
+    vault_admin_path: str = "secret/data/nextcloud/admin"
 
     log_level: str = "INFO"
     otel_exporter_otlp_endpoint: str = ""

@@ -48,6 +48,9 @@ async def ocs_delete(path: str) -> dict:
 
 
 def _check_ocs_status(body: dict) -> None:
+    # SECURITY[accepted]: OCS error messages are passed through to the caller. Nextcloud OCS
+    # error messages are not sensitive (they describe API misuse, not internal state). Callers
+    # are trusted MCP agents operating under scoped-mcp grants. Audit: 2026-06-21/nextcloud-mcp-2026-06.
     meta = body.get("ocs", {}).get("meta", {})
     status = meta.get("status", "")
     statuscode = meta.get("statuscode", 0)

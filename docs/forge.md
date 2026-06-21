@@ -91,10 +91,10 @@ are fetched from Vault at call time instead of env vars:
 ```
 NEXTCLOUD_VAULT_ADDR=http://127.0.0.1:8200
 NEXTCLOUD_VAULT_TOKEN=<token>
-NEXTCLOUD_VAULT_ADMIN_PATH=secret/nextcloud/admin
+NEXTCLOUD_VAULT_ADMIN_PATH=secret/data/nextcloud/admin
 ```
 
-The secret at that path must have `username` and `password` keys:
+The secret at that path must have `username` and `password` keys (KV v2 path — include `/data/` between the mount and key name):
 ```bash
 vault kv put secret/nextcloud/admin username=admin password=<app-password>
 ```

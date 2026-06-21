@@ -11,11 +11,27 @@ from .config import get_settings
 log = structlog.get_logger()
 
 
+def _sanitize_args(args: tuple[str, ...]) -> list[str]:
+    """Redact values that follow --value in occ argv (e.g. config:system:set --value <secret>)."""
+    result: list[str] = []
+    skip = False
+    for arg in args:
+        if skip:
+            result.append("[REDACTED]")
+            skip = False
+        elif arg == "--value":
+            result.append(arg)
+            skip = True
+        else:
+            result.append(arg)
+    return result
+
+
 async def run_occ(*args: str, timeout: int = 120) -> str:
     """Run an occ command and return stdout. Raises RuntimeError on non-zero exit."""
     cfg = get_settings()
     cmd = ["docker", "exec", cfg.container, "occ", "--no-ansi", *args]
-    log.info("occ_exec", args=list(args))
+    log.info("occ_exec", args=_sanitize_args(args))
 
     proc = await asyncio.create_subprocess_exec(
         *cmd,

@@ -32,5 +32,5 @@ async def _vault_credentials(cfg: Settings) -> tuple[str, str]:  # noqa: F821
     async with httpx.AsyncClient() as client:
         resp = await client.get(url, headers=headers, timeout=5.0)
         resp.raise_for_status()
-    data = resp.json()["data"]
+    data = resp.json()["data"]["data"]  # KV v2 wraps secret under data.data
     return data["username"], data["password"]

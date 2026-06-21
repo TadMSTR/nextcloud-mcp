@@ -47,3 +47,8 @@ nextcloud-mcp:
 - `fulltextsearch_index --reset` wipes and rebuilds the full OpenSearch index. Takes time.
 - `dav_get` / `dav_put` use base64 encoding for binary content.
 - WebDAV paths are relative to the user's file root (no leading slash needed).
+
+<!-- SECURITY[control]: This server has no internal authentication layer. Tool access control
+is enforced entirely by scoped-mcp grants (see manifest above). Agents only see the tool subset
+their grant allows — occ-admin and ocs-provisioning are sysadmin-only by design.
+Audit: 2026-06-21/nextcloud-mcp-2026-06. -->
