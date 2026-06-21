@@ -292,7 +292,9 @@ async def app_password_create(username: str, label: str = "agent") -> str:
     """
     app_password = secrets.token_urlsafe(24)
     await run_occ(
-        "user:add-app-password", username, "--password-from-env",
+        "user:add-app-password",
+        username,
+        "--password-from-env",
         env={"OC_PASS": app_password},
     )
     return app_password
