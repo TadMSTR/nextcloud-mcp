@@ -85,9 +85,9 @@ async def test_share_create_public_link(mock_get_creds):
 @respx.mock
 @pytest.mark.asyncio
 async def test_share_delete(mock_get_creds):
-    respx.delete(
-        f"{NEXTCLOUD_TEST_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares/42"
-    ).mock(return_value=httpx.Response(200, json=OCS_OK))
+    respx.delete(f"{NEXTCLOUD_TEST_URL}/ocs/v2.php/apps/files_sharing/api/v1/shares/42").mock(
+        return_value=httpx.Response(200, json=OCS_OK)
+    )
     from nextcloud_mcp.server import share_delete
 
     result = await share_delete(share_id="42")
