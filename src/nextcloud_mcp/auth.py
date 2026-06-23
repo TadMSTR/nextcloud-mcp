@@ -5,7 +5,7 @@ from __future__ import annotations
 import httpx
 import structlog
 
-from .config import get_settings
+from .config import Settings, get_settings
 
 log = structlog.get_logger()
 
@@ -25,7 +25,7 @@ async def get_admin_credentials() -> tuple[str, str]:
     return cfg.admin_user, cfg.admin_password
 
 
-async def _vault_credentials(cfg: Settings) -> tuple[str, str]:  # noqa: F821
+async def _vault_credentials(cfg: Settings) -> tuple[str, str]:
     headers = {"X-Vault-Token": cfg.vault_token}
     url = f"{cfg.vault_addr.rstrip('/')}/v1/{cfg.vault_admin_path.lstrip('/')}"
     log.debug("vault_credential_fetch", url=url)
