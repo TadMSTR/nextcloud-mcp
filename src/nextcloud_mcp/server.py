@@ -290,6 +290,7 @@ async def app_password_create(username: str, label: str = "agent") -> str:
     Returns the password to the caller — never stored or logged by this server.
     Store it securely (e.g. Vault) immediately after receiving it.
     """
+    _validate_id(username, "username")
     app_password = secrets.token_urlsafe(24)
     await run_occ(
         "user:add-app-password",

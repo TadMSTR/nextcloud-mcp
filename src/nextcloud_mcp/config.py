@@ -15,7 +15,6 @@ class Settings(BaseSettings):
 
     url: str = ""  # Required — set NEXTCLOUD_URL
     container: str = "nextcloud"
-    occ_user: str = "abc"
     admin_user: str = "admin"
     admin_password: str = ""
 
