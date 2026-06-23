@@ -59,6 +59,19 @@ async def test_dav_put():
 
 @respx.mock
 @pytest.mark.asyncio
+async def test_dav_move():
+    respx.route(method="MOVE", url=f"{DAV_BASE}/old.txt").mock(
+        return_value=httpx.Response(201)
+    )
+    from nextcloud_mcp.server import dav_move
+
+    result = await dav_move(username="alice", password="pw", src="old.txt", dst="new.txt")
+    assert "old.txt" in result
+    assert "new.txt" in result
+
+
+@respx.mock
+@pytest.mark.asyncio
 async def test_dav_delete():
     respx.delete(f"{DAV_BASE}/old.txt").mock(return_value=httpx.Response(204))
     from nextcloud_mcp.server import dav_delete
